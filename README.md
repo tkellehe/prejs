@@ -27,9 +27,9 @@ Also when a directive is removed, whitespace replaces the characters that are ne
 This allows for the parser to not re-ajust for the offset created when removing directives and
 makes sure that the _JavaScript_ created will not have anything connected that was not supposed to be before.
 
-There are currently `8` different directives that can be used:
+There are currently `10` different directives that can be used:
 
-`DEF`|`UNDEF`|`IFDEF`|`IFNDEF`|`ELIFDEF`|`ELIFNDEF`|`ELSE`|`REPEAT`
+`DEF`|`UNDEF`|`IFDEF`|`IFNDEF`|`ELIFDEF`|`ELIFNDEF`|`ELSE`|`REPEAT`|`CUT`|`PASTE`
 
 ---
 
@@ -145,4 +145,17 @@ DIRECTIVE.ENDREPEAT
 console.log("prejs")
 console.log("prejs")
 console.log("prejs")
+```
+
+### `CUT` and `PASTE`
+
+Takes the code between it and its respective `ENDCUT` and removes the code. The code is then stored in a member of `DEFS` 
+named from the argument following `CUT` then placed into a member of that called `CODE`. This then can be used with `PASTE`
+by specifying the argument of `PASTE` to be the same as `CUT` which will insert the code.
+
+```js
+DIRECTIVE.CUT.NAME "MY NAME IS ..." DIRECTIVE.ENDCUT
+console.log(DIRECTIVE.PASTE.NAME)
+// After processing...
+console.log( "My name is ..." );
 ```
