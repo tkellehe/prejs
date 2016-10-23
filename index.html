@@ -1,1 +1,25 @@
+<style type="text/css">
+
+.codearea {
+	width: 20em;
+	height: 10em;
+}
+
+</style>
+
 <script src="pre.js"></script>
+
+<textarea id="code" placeholder="Code to process..." class="codearea"></textarea>
+<br>
+<input id="parse" type="submit" value="PARSE" onclick="parse()"/>
+<br>
+<textarea id="output" placeholder="Output..." class="codearea"></textarea>
+
+<script>
+  var input = document.getElementById("parse");
+  var code = document.getElementById("code");
+  var output = document.getElementById("output");
+  function parse() {
+      output.value = prejs.parse(code.value);
+  }
+</script>
