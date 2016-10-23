@@ -247,21 +247,24 @@ function regex_exec(regex, string) {
 function Lexer(string) {
   this.regex = /(DIRECTIVE(?:\.[\w]+)+)/g;
   this.string = string;
+  this.index = 0;
 }
 
 Lexer.prototype.next = function() {
+  this.regex.lastIndex = this.index;
   var result = regex_exec(this.regex, this.string);
   if(result.matched) {
     result.tokens = result.groups[0].split(".");
   }
+  this.index = this.regex.lastIndex;
   return result;
 }
 
-Lexer.prototype.soft_next = function(lastIndex) {
-  var temp = this.regex.lastIndex;
-  this.regex.lastIndex = lastIndex;
+Lexer.prototype.soft_next = function(index) {
+  var temp = this.index;
+  this.index = index;
   var result = this.next();
-  this.regex.lastIndex = temp;
+  this.index = temp;
   return result;
 }
 
