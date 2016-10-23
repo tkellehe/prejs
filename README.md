@@ -105,3 +105,43 @@ DIRECTIVE.UNDEF.IN_MY_FILE
 // After processing...
 function f() { console.log("In my file!") }
 ```
+
+### `ELIFDEF` and `ELIFNDEF`
+
+Same as `IFDEF` and `IFNDEF` except can be used as an `else-if` statement.
+
+```js
+function f() { DIRECTIVE.IFDEF.CHROME console.log("In chrome!") DIRECTIVE.IFDEF.IE console.log("IE?") DIRECTIVE.ENDIF }
+// After processing in chrome...
+function f() { console.log("In chrome!") }
+// After processing in ie...
+function f() { console.log("IE?") }
+```
+
+### `ELSE`
+
+Can be used as an `if-else` statement.
+
+```js
+function f() { DIRECTIVE.IFDEF.IS_LITTLE_ENDIAN console.log("little") DIRECTIVE.ELSE console.log("big") DIRECTIVE.ENDIF }
+// After processing on a little endian...
+function f() { console.log("little") }
+// After processing on a big endian...
+function f() { console.log("big") }
+```
+
+### `REPEAT`
+
+A directive useful when you know that there are a finite number of times a block of code needs to be run, but do
+not want the cost of looping or large file. This function takes the argument following it and parses it as a
+number which indicates the number of times for the code between it and its respective `ENDREPEAT`.
+
+```js
+DIRECTIVE.REPEAT.3
+console.log("prejs")
+DIRECTIVE.ENDREPEAT
+// After processing...
+console.log("prejs")
+console.log("prejs")
+console.log("prejs")
+```
