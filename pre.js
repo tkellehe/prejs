@@ -170,7 +170,8 @@ var prejs = {
     prejs.DEFS[capture.statement[2]].CODE = code;
   },
   PASTE: function(lexer, capture, start) {
-    var upper = lexer.string.slice(0, capture.index);
+    lexer.remove(capture);
+    var upper = lexer.string.slice(0, capture.end);
     var lower = lexer.string.slice(capture.end);
     lexer.string = (upper + prejs.DEFS[capture.statement[2]].CODE + lower);
   }
