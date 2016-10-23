@@ -7,18 +7,18 @@
 function find_ifs_end(lexer, next) {
   var counter = 0;
   while(1) {
-    next = lexer.soft_next(next.lastIndex);
-    if(next.statement[1] === "ENDIF") {
+    next = lexer.soft_next(next.end);
+    if(next.tokens[1] === "ENDIF") {
       if(counter) {
         --counter;
       } else {
         next.is_end = true;
         break;
       }
-    } else if(next.statement[1] === "IFDEF" ||
-              next.statement[1] === "IFNDEF") {
+    } else if(next.tokens[1] === "IFDEF" ||
+              next.tokens[1] === "IFNDEF") {
       ++counter;
-    } else if(next.statement[1] === "ELSE") {
+    } else if(next.tokens[1] === "ELSE") {
       if(counter === 0) {
         next.is_end = false;
         break;
@@ -34,21 +34,21 @@ function remove_ifs(lexer, next) {
   var start_region = undefined
   lexer.remove(next);
   while(1) {
-    next = lexer.soft_next(next.lastIndex);
-    if(next.statement[1] === "ENDIF") {
+    next = lexer.soft_next(next.end);
+    if(next.tokens[1] === "ENDIF") {
       if(counter) {
         --counter;
       } else if(start_region) {
-        lexer.remove_region(start_region.index, next.end);
+        lexer.remove_region(start_region.start, next.end);
         break;
       } else {
         lexer.remove(next);
         break;
       }
-    } else if(next.statement[1] === "IFDEF" ||
-              next.statement[1] === "IFNDEF") {
+    } else if(next.tokens[1] === "IFDEF" ||
+              next.tokens[1] === "IFNDEF") {
       ++counter;
-    } else if(next.statement[1] === "ELSE") {
+    } else if(next.tokens[1] === "ELSE") {
       if(counter === 0 && start_region === undefined) {
         start_region = next;
       }
@@ -62,12 +62,12 @@ function process_ifs(lexer, capture, didPass) {
     remove_ifs(lexer, capture);
   } else {
     // Did not pass therein check to see if next statement is successful.
-    lexer.remove_region(capture.index, next.index);
+    lexer.remove_region(capture.start, next.start);
     if(next.is_end) {
       lexer.remove(next);
     } else {
       // Need to keep going until all have been evaluated.
-      prejs[next.statement[1]](lexer, next, 2);
+      prejs[next.tokens[1]](lexer, next, 2);
     }
   }
 }
@@ -78,41 +78,41 @@ function process_ifs(lexer, capture, didPass) {
 var prejs = {
   DEFS: {},
   DEF: function(lexer, capture, start) {
-    delete prejs.DEFS[capture.statement[start]];
-    prejs.DEFS[capture.statement[start]] = {};
+    delete prejs.DEFS[capture.tokens[start]];
+    prejs.DEFS[capture.tokens[start]] = {};
 
     lexer.remove(capture);
   },
   UNDEF: function(lexer, capture, start) {
-    delete prejs.DEFS[capture.statement[start]];
+    delete prejs.DEFS[capture.tokens[start]];
 
     lexer.remove(capture);
   },
   IFDEF: function(lexer, capture, start) {
-    process_ifs(lexer, capture, prejs.DEFS[capture.statement[start]] !== undefined);
+    process_ifs(lexer, capture, prejs.DEFS[capture.tokens[start]] !== undefined);
   },
   IFNDEF: function(lexer, capture, start) {
-    process_ifs(lexer, capture, prejs.DEFS[capture.statement[start]] === undefined);
+    process_ifs(lexer, capture, prejs.DEFS[capture.tokens[start]] === undefined);
   },
   ELSE: function(lexer, capture, start) {
-    if(capture.statement[start] === undefined) {
+    if(capture.tokens[start] === undefined) {
       process_ifs(lexer, capture, true);
     } else {
-      prejs[capture.statement[start]](lexer, capture, start + 1);
+      prejs[capture.tokens[start]](lexer, capture, start + 1);
     }
   },
   REPEAT: function(lexer, capture, start) {
     // First must find the valid ENDREPEAT.
     var counter = 0, next = capture;
     while(1) {
-      next = lexer.soft_next(next.lastIndex);
-      if(next.statement[1] === "ENDREPEAT") {
+      next = lexer.soft_next(next.end);
+      if(next.tokens[1] === "ENDREPEAT") {
         if(counter) {
           --counter;
         } else {
           break;
         }
-      } else if(next.statement[1] === "REPEAT") {
+      } else if(next.tokens[1] === "REPEAT") {
         ++counter;
       }
     }
@@ -122,12 +122,12 @@ var prejs = {
     var upper = lexer.string.slice(0, capture.end);
     var lower = lexer.string.slice(next.end);
     // The code to be repeated should be contained within.
-    var code = lexer.string.slice(capture.end, next.index);
+    var code = lexer.string.slice(capture.end, next.start);
     // The replacement string that will contain the repeated code.
     var replacement = ""
 
     // Must ignore the first character for it should be a word character.
-    var i = +capture.statement[start].slice(1);
+    var i = +capture.tokens[start].slice(1);
     while(i--) replacement += code;
 
     lexer.string = upper + replacement + lower;
@@ -136,14 +136,14 @@ var prejs = {
     // First must find the valid ENDCOPY.
     var counter = 0, next = capture;
     while(1) {
-      next = lexer.soft_next(next.lastIndex);
-      if(next.statement[1] === "ENDCUT") {
+      next = lexer.soft_next(next.end);
+      if(next.tokens[1] === "ENDCUT") {
         if(counter) {
           --counter;
         } else {
           break;
         }
-      } else if(next.statement[1] === "CUT") {
+      } else if(next.tokens[1] === "CUT") {
         ++counter;
       }
     }
@@ -153,21 +153,21 @@ var prejs = {
     var upper = lexer.string.slice(0, capture.end);
     var lower = lexer.string.slice(next.end);
     // The code to be repeated should be contained within.
-    var code = lexer.string.slice(capture.end, next.index);
+    var code = lexer.string.slice(capture.end, next.start);
     
     lexer.string = upper + lower;
 
-    if(prejs.DEFS[capture.statement[2]] === undefined) {
-      prejs.DEFS[capture.statement[2]] = {};
+    if(prejs.DEFS[capture.tokens[2]] === undefined) {
+      prejs.DEFS[capture.tokens[2]] = {};
     }
 
-    prejs.DEFS[capture.statement[2]].CODE = code;
+    prejs.DEFS[capture.tokens[2]].CODE = code;
   },
   PASTE: function(lexer, capture, start) {
     lexer.remove(capture);
     var upper = lexer.string.slice(0, capture.end);
     var lower = lexer.string.slice(capture.end);
-    lexer.string = (upper + prejs.DEFS[capture.statement[2]].CODE + lower);
+    lexer.string = (upper + prejs.DEFS[capture.tokens[2]].CODE + lower);
   }
 };
 
@@ -229,13 +229,13 @@ function regex_exec(regex, string) {
   var result = {
     grabbed: "",
     groups: [],
-    index: -1,
+    start: -1,
     matched: false,
-    lastIndex: regex.lastIndex
+    end: regex.lastIndex
   };
   if(r) {
     result.grabbed = r[0];
-    result.index = r.index;
+    result.start = r.index;
     result.matched = true;
     for(var i = 1, l = r.length; i < l; ++i) result.groups.push(r[i]);
   }
@@ -252,8 +252,7 @@ function Lexer(string) {
 Lexer.prototype.next = function() {
   var result = regex_exec(this.regex, this.string);
   if(result.matched) {
-    result.statement = result.groups[0].split(".");
-    result.end = result.index + result.groups[0].length;
+    result.tokens = result.groups[0].split(".");
   }
   return result;
 }
@@ -278,7 +277,7 @@ Lexer.prototype.remove_region = function(start, stop) {
 }
 
 Lexer.prototype.remove = function(capture) {
-  this.remove_region(capture.index, capture.end);
+  this.remove_region(capture.start, capture.end);
 }
 
 /// Main function for the user to utilize when parsing.
@@ -289,7 +288,7 @@ prejs.parse = function(string) {
   while(1) {
     var capture = lexer.next();
     if(capture.matched) {
-      prejs[capture.statement[1]](lexer, capture, 2);
+      prejs[capture.tokens[1]](lexer, capture, 2);
     } else {
       break;
     }
