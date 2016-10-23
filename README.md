@@ -27,6 +27,8 @@ Also when a directive is removed, whitespace replaces the characters that are ne
 This allows for the parser to not re-ajust for the offset created when removing directives and
 makes sure that the _JavaScript_ created will not have anything connected that was not supposed to be before.
 
+---
+
 ## DEFINE
 
 Adds an object to the `DEFS` property of __prejs__. Takes the next string of valid word characters following the delimiter after
