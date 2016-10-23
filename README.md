@@ -134,10 +134,11 @@ function f() { console.log("big") }
 
 A directive useful when you know that there are a finite number of times a block of code needs to be run, but do
 not want the cost of looping or large file. This function takes the argument following it and parses it as a
-number which indicates the number of times for the code between it and its respective `ENDREPEAT`.
+number which indicates the number of times for the code between it and its respective `ENDREPEAT`. Note this number
+must begin with the letter `N` (Or any other word character that is not a number really...).
 
 ```js
-DIRECTIVE.REPEAT.3
+DIRECTIVE.REPEAT.N3
 console.log("prejs")
 DIRECTIVE.ENDREPEAT
 // After processing...
