@@ -29,7 +29,7 @@ makes sure that the _JavaScript_ created will not have anything connected that w
 
 ---
 
-##### `DEFINE`
+#### `DEFINE`
 
 Adds an object to the `DEFS` property of __prejs__. Takes the next string of valid word characters following the delimiter after
 the directive. Then adds a property to `DEFS` named by that string. This can now be used in directives such as `UNDEF`
@@ -54,7 +54,7 @@ to choose if they are to be defined:
 
 `FIRE_FOX`, `SAFARI`, `IE`, `EDGE`, `CHROME`, and `BLINK`.
 
-##### `UNDEF`
+#### `UNDEF`
 
 Removes an object from the `DEFS` property of __prejs__. Takes the next string of valid word characters following the delimiter after
 the directive. Then removes a property from `DEFS` named by that string. It is not necessary for the variable to
@@ -72,7 +72,7 @@ function f() {console.log(prejs.DEFS.IN_MY_FILE !== undefined)}
  */
 ```
 
-##### `IFDEF`
+#### `IFDEF`
 
 The most basic of the commands that must be closed by an `ENDIF`.
 
