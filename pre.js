@@ -1,5 +1,9 @@
 (function(global){
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// Special processing for handling if based directives
+/////////////////////////////////////////////////////////////////////////////////////////
+
 function find_ifs_end(lexer, next) {
   var counter = 0;
   while(1) {
@@ -51,7 +55,6 @@ function remove_ifs(lexer, next) {
               next.statement[1] === "ELSE") {
       if(counter === 0 && start_region === undefined) {
         start_region = next;
-        break;
       }
     }
   }
@@ -73,9 +76,12 @@ function process_ifs(lexer, capture, didPass) {
   }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// All of the directives contained within prejs.
+/////////////////////////////////////////////////////////////////////////////////////////
 var prejs = {
   DEFS: {},
-  DEFINE: function(lexer, capture, start) {
+  DEF: function(lexer, capture, start) {
     delete prejs.DEFS[capture.statement[start]];
     prejs.DEFS[capture.statement[start]] = {};
 
@@ -102,6 +108,7 @@ var prejs = {
     process_ifs(lexer, capture, true);
   },
   REPEAT: function(lexer, capture, start) {
+    // First must find the valid ENDREPEAT.
     var counter = 0, next = capture;
     while(1) {
       next = lexer.soft_next(next.lastIndex);
@@ -116,20 +123,19 @@ var prejs = {
       }
     }
 
-    lexer.remove(capture);
-    lexer.remove(next);
-
+    // Captue the upper and lower portions not containing the directive.
     var upper = lexer.string.slice(0, capture.index);
     var lower = lexer.string.slice(next.end);
+    // The code to be repeated should be contained within.
     var code = lexer.string.slice(capture.end, next.index);
-    var string = ""
+    // The replacement string that will contain the repeated code.
+    var replacement = ""
 
-    var i = +capture.statement[start];
-    for(;i--;) {
-      string += code;
-    }
+    // Must ignore the first character for it should be a word character.
+    var i = +capture.statement[start].slice(1);
+    for(;i--;) replacement += code;
 
-    lexer.string = upper + string + lower;
+    lexer.string = upper + replacement + lower;
   }
 };
 
@@ -154,25 +160,32 @@ var isChrome = !!window.chrome && !!window.chrome.webstore;
 var isBlink = (isChrome || isOpera) && !!window.CSS;
 
 if(isOpera) {
-  prejs.DEFS["OPERA"] = {};
+  prejs.DEFS["IN_OPERA"] = {};
 }
 if(isFirefox) {
-  prejs.DEFS["FIRE_FOX"] = {};
+  prejs.DEFS["IN_FIRE_FOX"] = {};
 }
 if(isSafari) {
-  prejs.DEFS["SAFARI"] = {};
+  prejs.DEFS["IN_SAFARI"] = {};
 }
 if(isIE) {
-  prejs.DEFS["IE"] = {};
+  prejs.DEFS["IN_IE"] = {};
 }
 if(isEdge) {
-  prejs.DEFS["EDGE"] = {};
+  prejs.DEFS["IN_EDGE"] = {};
 }
 if(isChrome) {
-  prejs.DEFS["CHROME"] = {}
+  prejs.DEFS["IN_CHROME"] = {}
 }
 if(isBlink) {
-  prejs.DEFS["BLINK"] = {};
+  prejs.DEFS["IN_BLINK"] = {};
+}
+
+var isLittleEndian = ((new Uint32Array((new Uint8Array([1,2,3,4])).buffer))[0] === 0x04030201)
+if(isLittleEndian) {
+  prejs.DEFS["IS_LITTLE_ENDIAN"] = {};
+} else {
+  prejs.DEFS["IS_BIG_ENDIAN"] = {};
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -198,6 +211,7 @@ function regex_exec(regex, string) {
   return result;
 }
 
+/// Main class used to interface with the code provided by the user.
 function Lexer(string) {
   this.regex = /(DIRECTIVE(?:\.[\w]+)+)/g;
   this.string = string;
@@ -235,6 +249,7 @@ Lexer.prototype.remove = function(capture) {
   this.remove_region(capture.index, capture.end);
 }
 
+/// Main function for the user to utilize when parsing.
 prejs.parse = function(string) {
   var lexer = new Lexer(string);
 
@@ -251,6 +266,8 @@ prejs.parse = function(string) {
   return lexer.string;
 }
 
+/// Takes in a block of code then creates a script tag to let the browser
+/// interpret the code.
 prejs.exec = function(string) {
   var script = document.createElement("script");
   script.textContent = string;
@@ -258,6 +275,7 @@ prejs.exec = function(string) {
   head.appendChild(script);
 }
 
+/// Provides the prejs object to the global object.
 global.prejs = prejs;
 
 })(this)
