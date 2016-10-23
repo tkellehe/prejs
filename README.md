@@ -13,12 +13,10 @@ var code =
 console.log(code);
 code = prejs.parse(code);
 console.log(code);
-/* If using CHROME...
+// Output if using CHROME...
 "function f() {                        console.log("Hello CHROME user!")                                                              }"
-*/
-/* If not using CHROME...
+// Output if not using CHROME...
 "function f() {                                                                         console.log("Why no CHROME?")                 }"
-*/
 ```
 
 All directives in __prejs__ start with `DIRECTIVE` where the delimiter between each directive is `.`.
