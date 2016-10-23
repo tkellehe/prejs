@@ -8,15 +8,15 @@ This will apply any pre-processor directives contained within the string and ret
 
 ```js
 var code =
-"function f() { DIRECTIVE.IFDEF.CHROME console.log("Hello CHROME user!") DIRECTIVE.ELSE console.log("Why no CHROME?") DIRECTIVE.ENDIF }"
+"function f() { DIRECTIVE.IFDEF.IN_CHROME console.log("Hello CHROME user!") DIRECTIVE.ELSE console.log("Why no CHROME?") DIRECTIVE.ENDIF }"
 
 console.log(code);
 code = prejs.parse(code);
 console.log(code);
 // Output if using CHROME...
-"function f() {                        console.log("Hello CHROME user!")                                                              }"
+"function f() {                           console.log("Hello CHROME user!")                                                              }"
 // Output if not using CHROME...
-"function f() {                                                                         console.log("Why no CHROME?")                 }"
+"function f() {                                                                            console.log("Why no CHROME?")                 }"
 ```
 
 All directives in __prejs__ start with `DIRECTIVE` where the delimiter between each directive is `.`.
@@ -29,18 +29,18 @@ makes sure that the _JavaScript_ created will not have anything connected that w
 
 There are currently `8` different directives that can be used:
 
-`DEFINE`|`UNDEF`|`IFDEF`|`IFNDEF`|`ELIFDEF`|`ELIFNDEF`|`ELSE`|`REPEAT`
+`DEF`|`UNDEF`|`IFDEF`|`IFNDEF`|`ELIFDEF`|`ELIFNDEF`|`ELSE`|`REPEAT`
 
 ---
 
-### `DEFINE`
+### `DEF`
 
 Adds an object to the `DEFS` property of __prejs__. Takes the next string of valid word characters following the delimiter after
 the directive. Then adds a property to `DEFS` named by that string. This can now be used in directives such as `UNDEF`
 and other that rely on an existance of a variable.
 
 ```js
-DIRECTIVE.DEFINE.IN_MY_FILE
+DIRECTIVE.DEF.IN_MY_FILE
 function f() {console.log(prejs.DEFS.IN_MY_FILE !== undefined)}
 // Apply processing...
 function f() {console.log(prejs.DEFS.IN_MY_FILE !== undefined)}
@@ -56,7 +56,7 @@ Here are some built-in variables pertaining to type of browser which use the cod
 [here](http://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser)
 to choose if they are to be defined:
 
-`FIRE_FOX`, `SAFARI`, `IE`, `EDGE`, `CHROME`, and `BLINK`.
+`IN_FIRE_FOX`, `IN_SAFARI`, `IN_IE`, `IN_EDGE`, `IN_CHROME`, and `IN_BLINK`.
 
 The variables `IS_BIG_ENDIAN` and `IS_LITTLE_ENDIAN` are aslo supported.
 
@@ -67,7 +67,7 @@ the directive. Then removes a property from `DEFS` named by that string. It is n
 exist for `UNDEF` to still work, but it is a waste of processing.
 
 ```js
-DIRECTIVE.DEFINE.IN_MY_FILE
+DIRECTIVE.DEF.IN_MY_FILE
 function f() {console.log(prejs.DEFS.IN_MY_FILE !== undefined)}
 DIRECTIVE.UNDEF.IN_MY_FILE
 // Apply processing...
@@ -85,7 +85,7 @@ and either erase it or leave it based off of the valid word characters following
 a member of `DEFS` then the code will stay else it will be removed.
 
 ```js
-DIRECTIVE.DEFINE.IN_MY_FILE
+DIRECTIVE.DEF.IN_MY_FILE
 function f() { DIRECTIVE.IFDEF.IN_MY_FILE console.log("In my file!") DIRECTIVE.ENDIF }
 DIRECTIVE.UNDEF.IN_MY_FILE
 // After processing...
@@ -99,7 +99,7 @@ and either erase it or leave it based off of the valid word characters following
 a member of `DEFS` then the code will be removed else it will stay.
 
 ```js
-DIRECTIVE.DEFINE.IN_MY_FILE
+DIRECTIVE.DEF.IN_MY_FILE
 function f() { DIRECTIVE.IFNDEF.IN_OTHER_FILE console.log("In my file!") DIRECTIVE.ENDIF }
 DIRECTIVE.UNDEF.IN_MY_FILE
 // After processing...
@@ -111,7 +111,7 @@ function f() { console.log("In my file!") }
 Same as `IFDEF` and `IFNDEF` except can be used as an `else-if` statement.
 
 ```js
-function f() { DIRECTIVE.IFDEF.CHROME console.log("In chrome!") DIRECTIVE.IFDEF.IE console.log("IE?") DIRECTIVE.ENDIF }
+function f() { DIRECTIVE.IFDEF.IN_CHROME console.log("In chrome!") DIRECTIVE.IFDEF.IN_IE console.log("IE?") DIRECTIVE.ENDIF }
 // After processing in chrome...
 function f() { console.log("In chrome!") }
 // After processing in ie...
