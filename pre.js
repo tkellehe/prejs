@@ -18,9 +18,7 @@ function find_ifs_end(lexer, next) {
     } else if(next.statement[1] === "IFDEF" ||
               next.statement[1] === "IFNDEF") {
       ++counter;
-    } else if(next.statement[1] === "ELIFDEF" ||
-              next.statement[1] === "ELIFNDEF" ||
-              next.statement[1] === "ELSE") {
+    } else if(next.statement[1] === "ELSE") {
       if(counter === 0) {
         next.is_end = false;
         break;
@@ -50,9 +48,7 @@ function remove_ifs(lexer, next) {
     } else if(next.statement[1] === "IFDEF" ||
               next.statement[1] === "IFNDEF") {
       ++counter;
-    } else if(next.statement[1] === "ELIFDEF" ||
-              next.statement[1] === "ELIFNDEF" ||
-              next.statement[1] === "ELSE") {
+    } else if(next.statement[1] === "ELSE") {
       if(counter === 0 && start_region === undefined) {
         start_region = next;
       }
@@ -98,14 +94,12 @@ var prejs = {
   IFNDEF: function(lexer, capture, start) {
     process_ifs(lexer, capture, prejs.DEFS[capture.statement[start]] === undefined);
   },
-  ELIFDEF: function(lexer, capture, start) {
-    process_ifs(lexer, capture, prejs.DEFS[capture.statement[start]] !== undefined);
-  },
-  ELIFNDEF: function(lexer, capture, start) {
-    process_ifs(lexer, capture, prejs.DEFS[capture.statement[start]] === undefined);
-  },
   ELSE: function(lexer, capture, start) {
-    process_ifs(lexer, capture, true);
+    if(capture.statement[start] === undefined) {
+      process_ifs(lexer, capture, true);
+    } else {
+      prejs[capture.statement[start]](lexer, capture, start + 1);
+    }
   },
   REPEAT: function(lexer, capture, start) {
     // First must find the valid ENDREPEAT.
