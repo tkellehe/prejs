@@ -158,7 +158,7 @@ named from the argument following `CUT` then placed into a member of that called
 by specifying the argument of `PASTE` to be the same as `CUT` which will insert the code.
 
 ```js
-DIRECTIVE.CUT.NAME "MY NAME IS ..." DIRECTIVE.ENDCUT
+DIRECTIVE.CUT.NAME "My name is ..." DIRECTIVE.ENDCUT
 console.log(DIRECTIVE.PASTE.NAME)
 // After processing...
 console.log( "My name is ..." );
