@@ -27,6 +27,10 @@ Also when a directive is removed, whitespace replaces the characters that are ne
 This allows for the parser to not re-ajust for the offset created when removing directives and
 makes sure that the _JavaScript_ created will not have anything connected that was not supposed to be before.
 
+There are currently `8` different directives that can be used:
+
+`DEFINE`|`UNDEF`|`IFDEF`|`IFNDEF`|`ELIFDEF`|`ELIFNDEF`|`ELSE`|`REPEAT`
+
 ---
 
 ### `DEFINE`
@@ -48,11 +52,13 @@ function f() {console.log(prejs.DEFS.IN_MY_FILE !== undefined)}
 
 It is important to note that if a variable was already defined it will be removed and a new one will be created.
 
-Here are some built-in variables which use the code from
+Here are some built-in variables pertaining to type of browser which use the code from
 [here](http://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser)
 to choose if they are to be defined:
 
 `FIRE_FOX`, `SAFARI`, `IE`, `EDGE`, `CHROME`, and `BLINK`.
+
+The variables `IS_BIG_ENDIAN` and `IS_LITTLE_ENDIAN` are aslo supported.
 
 ### `UNDEF`
 
@@ -74,5 +80,28 @@ function f() {console.log(prejs.DEFS.IN_MY_FILE !== undefined)}
 
 ### `IFDEF`
 
-The most basic of the commands that must be closed by an `ENDIF`.
+The first of the directives that must be closed by an `ENDIF`. This directive will take the block of code controled
+and either erase it or leave it based off of the valid word characters following the directive. If the string is
+a member of `DEFS` then the code will stay else it will be removed.
 
+```js
+DIRECTIVE.DEFINE.IN_MY_FILE
+function f() { DIRECTIVE.IFDEF.IN_MY_FILE console.log("In my file!") DIRECTIVE.ENDIF }
+DIRECTIVE.UNDEF.IN_MY_FILE
+// After processing...
+function f() { console.log("In my file!") }
+```
+
+### `IFNDEF`
+
+Another of the directives that must be closed by an `ENDIF`. This directive will take the block of code controled
+and either erase it or leave it based off of the valid word characters following the directive. If the string is
+a member of `DEFS` then the code will be removed else it will stay.
+
+```js
+DIRECTIVE.DEFINE.IN_MY_FILE
+function f() { DIRECTIVE.IFNDEF.IN_OTHER_FILE console.log("In my file!") DIRECTIVE.ENDIF }
+DIRECTIVE.UNDEF.IN_MY_FILE
+// After processing...
+function f() { console.log("In my file!") }
+```
