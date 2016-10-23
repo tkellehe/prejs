@@ -123,8 +123,9 @@ var prejs = {
       }
     }
 
+    lexer.remove(capture);
     // Captue the upper and lower portions not containing the directive.
-    var upper = lexer.string.slice(0, capture.index);
+    var upper = lexer.string.slice(0, capture.end);
     var lower = lexer.string.slice(next.end);
     // The code to be repeated should be contained within.
     var code = lexer.string.slice(capture.end, next.index);
@@ -133,9 +134,45 @@ var prejs = {
 
     // Must ignore the first character for it should be a word character.
     var i = +capture.statement[start].slice(1);
-    for(;i--;) replacement += code;
+    while(i--) replacement += code;
 
     lexer.string = upper + replacement + lower;
+  },
+  CUT: function(lexer, capture, start) {
+    // First must find the valid ENDCOPY.
+    var counter = 0, next = capture;
+    while(1) {
+      next = lexer.soft_next(next.lastIndex);
+      if(next.statement[1] === "ENDCUT") {
+        if(counter) {
+          --counter;
+        } else {
+          break;
+        }
+      } else if(next.statement[1] === "CUT") {
+        ++counter;
+      }
+    }
+
+    lexer.remove(capture);
+    // Captue the upper and lower portions not containing the directive.
+    var upper = lexer.string.slice(0, capture.end);
+    var lower = lexer.string.slice(next.end);
+    // The code to be repeated should be contained within.
+    var code = lexer.string.slice(capture.end, next.index);
+    
+    lexer.string = upper + lower;
+
+    if(prejs.DEFS[capture.statement[2]] === undefined) {
+      prejs.DEFS[capture.statement[2]] = {};
+    }
+
+    prejs.DEFS[capture.statement[2]].CODE = code;
+  },
+  PASTE: function(lexer, capture, start) {
+    var upper = lexer.string.slice(0, capture.index);
+    var lower = lexer.string.slice(capture.end);
+    lexer.string = (upper + prejs.DEFS[capture.statement[2]].CODE + lower);
   }
 };
 
