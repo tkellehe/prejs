@@ -27,9 +27,9 @@ Also when a directive is removed, whitespace replaces the characters that are ne
 This allows for the parser to not re-ajust for the offset created when removing directives and
 makes sure that the _JavaScript_ created will not have anything connected that was not supposed to be before.
 
-There are currently `10` different directives that can be used:
+There are currently `8` different directives that can be used:
 
-`DEF`|`UNDEF`|`IFDEF`|`IFNDEF`|`ELIFDEF`|`ELIFNDEF`|`ELSE`|`REPEAT`|`CUT`|`PASTE`
+`DEF`|`UNDEF`|`IFDEF`|`IFNDEF`|`ELSE`|`REPEAT`|`CUT`|`PASTE`
 
 ---
 
@@ -106,24 +106,28 @@ DIRECTIVE.UNDEF.IN_MY_FILE
 function f() { console.log("In my file!") }
 ```
 
-### `ELIFDEF` and `ELIFNDEF`
-
-Same as `IFDEF` and `IFNDEF` except can be used as an `else-if` statement.
-
-```js
-function f() { DIRECTIVE.IFDEF.IN_CHROME console.log("In chrome!") DIRECTIVE.IFDEF.IN_IE console.log("IE?") DIRECTIVE.ENDIF }
-// After processing in chrome...
-function f() { console.log("In chrome!") }
-// After processing in ie...
-function f() { console.log("IE?") }
-```
-
 ### `ELSE`
 
 Can be used as an `if-else` statement.
 
 ```js
 function f() { DIRECTIVE.IFDEF.IS_LITTLE_ENDIAN console.log("little") DIRECTIVE.ELSE console.log("big") DIRECTIVE.ENDIF }
+// After processing on a little endian...
+function f() { console.log("little") }
+// After processing on a big endian...
+function f() { console.log("big") }
+```
+
+Can combine with `IFDEF` and `IFNDEF` in order to do `if-else-if` statements.
+
+```js
+function f() {
+DIRECTIVE.IFDEF.IS_LITTLE_ENDIAN
+    console.log("little")
+DIRECTIVE.ELSE.IFDEF.IS_BIG_ENDIAN
+    console.log("big")
+DIRECTIVE.ENDIF
+}
 // After processing on a little endian...
 function f() { console.log("little") }
 // After processing on a big endian...
