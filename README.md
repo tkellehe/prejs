@@ -8,15 +8,15 @@ This will apply any pre-processor directives contained within the string and ret
 
 ```js
 var code =
-"function f() { DIRECTIVE.IFDEF.IN_CHROME console.log("Hello CHROME user!") DIRECTIVE.ELSE console.log("Why no CHROME?") DIRECTIVE.ENDIF }"
+"function f() { DIRECTIVE.IFDEF.IN_CHROME console.log('Hello CHROME user!') DIRECTIVE.ELSE console.log('Why no CHROME?') DIRECTIVE.ENDIF }"
 
 console.log(code);
 code = prejs.parse(code);
 console.log(code);
 // Output if using CHROME...
-"function f() {                           console.log("Hello CHROME user!")                                                              }"
+"function f() {                           console.log('Hello CHROME user!')                                                              }"
 // Output if not using CHROME...
-"function f() {                                                                            console.log("Why no CHROME?")                 }"
+"function f() {                                                                            console.log('Why no CHROME?')                 }"
 ```
 
 All directives in __prejs__ start with `DIRECTIVE` where the delimiter between each directive is `.`.
