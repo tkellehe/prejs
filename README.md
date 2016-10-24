@@ -21,7 +21,8 @@ console.log(code);
 
 All directives in __prejs__ start with `DIRECTIVE` where the delimiter between each directive is `.`.
 This character was choosen because it is still valid syntax in _JavaScript_ which allows for 
-your code to go through minification and still have the directives.
+your code to go through minification and still have the directives. (Still designing the library to support
+going through minification and still have directives work)
 
 Also when a directive is removed, whitespace replaces the characters that are needed to be removed.
 This allows for the parser to not re-ajust for the offset created when removing directives and
