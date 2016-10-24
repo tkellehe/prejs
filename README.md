@@ -163,3 +163,23 @@ console.log(DIRECTIVE.PASTE.NAME)
 // After processing...
 console.log( "My name is ..." );
 ```
+
+---
+
+### MACROS
+
+The current way to do macros is to utilize a mixture of `CUT` and `PASTE`. This is done by cutting code that has
+pasting macros such that when the code is inserted the directives will be processed an the arguments will be pasted in.
+Here is a basic macro with two arguments:
+
+```js
+DIRECTIVE.CUT.MACRO
+(DIRECTIVE.PASTE.MACRO_METHOD(DIRECTIVE.PASTE.MACRO_METHOD(DIRECTIVE.PASTE.MACRO_NUMBER) * DIRECTIVE.PASTE.MACRO_NUMBER))
+DIRECTIVE.ENDCUT
+
+DIRECTIVE.CUT.MACRO_METHOD my_method DIRECTIVE.ENDCUT
+DIRECTIVE.CUT.MACRO_NUMBER 100 DIRECTIVE.ENDCUT
+DIRECTIVE.PASTE.MACRO
+// After processing...
+(my_method(my_method(100) * 100))
+```
